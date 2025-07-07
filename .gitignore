@@ -1,0 +1,7 @@
+**/build/
+.dart_tool/
+.packages
+.pub-cache/
+flutter_*.png
+.idea/
+android/.gradle
