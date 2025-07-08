@@ -36,6 +36,8 @@ dependencies:
   shared_preferences: ^2.0.15
   uuid: ^4.5.1
   image_picker: ^1.1.2
+  flutter_image_compress: ^2.3.0 # Added for image compression
+  transparent_image: ^2.0.1 # For fade-in image placeholder
   share_plus: ^11.0.0
   file_saver: ^0.3.0
   path_provider: ^2.0.11
