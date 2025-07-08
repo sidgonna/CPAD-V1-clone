@@ -5,6 +5,7 @@ import 'package:minddrop/controllers/ideas_controller.dart';
 import 'package:minddrop/utils/random_style_generator.dart'; // For alignmentFromString
 import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart'; // For kTransparentImage
+import 'package:share_plus/share_plus.dart'; // For sharing functionality
 // Placeholder for EditIdeaScreen route - will be created in P2-CRUD-001
 // import 'package:minddrop/utils/app_routes.dart';
 
@@ -155,7 +156,6 @@ class IdeaDetailScreen extends StatelessWidget {
                 icon: const Icon(Icons.delete),
                 tooltip: 'Delete Idea',
                 onPressed: () async {
-                  // TODO: Implement delete with confirmation (P2-CRUD-002)
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (ctx) => AlertDialog(
@@ -169,7 +169,38 @@ class IdeaDetailScreen extends StatelessWidget {
                   );
                   if (confirm == true) {
                     await ideasController.deleteIdea(idea.id);
-                    if (Navigator.canPop(context)) Navigator.pop(context); // Go back after deletion
+                    if (mounted && Navigator.canPop(context)) Navigator.pop(context);
+                  }
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.share),
+                tooltip: 'Share Idea',
+                onPressed: () async {
+                  final subject = idea.title;
+                  final textContent = "${idea.title}\n\n${idea.content}";
+
+                  if (idea.imagePath != null && idea.imagePath!.isNotEmpty) {
+                    try {
+                      // On some platforms (Desktop, Web), Share.shareXFiles might be better.
+                      // Share.shareFiles is generally robust.
+                      await Share.shareXFiles(
+                        [XFile(idea.imagePath!)],
+                        text: textContent,
+                        subject: subject, // Subject is mainly for email
+                      );
+                    } catch (e) {
+                      debugPrint("Error sharing image: $e");
+                       if (mounted) {
+                         ScaffoldMessenger.of(context).showSnackBar(
+                           SnackBar(content: Text('Could not share image: $e'), backgroundColor: Colors.red),
+                         );
+                       }
+                       // Fallback to text only share if image share fails
+                       await Share.share(textContent, subject: subject);
+                    }
+                  } else {
+                    await Share.share(textContent, subject: subject);
                   }
                 },
               ),

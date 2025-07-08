@@ -1,0 +1,15 @@
+# Keystore properties for MindDrop release build
+# Copy this file to key.properties and fill in your actual values.
+# IMPORTANT: DO NOT commit key.properties to version control. Add it to .gitignore.
+
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=YOUR_KEY_ALIAS
+# storeFile should be a path relative to the root of the Flutter project,
+# or an absolute path. For example:
+# storeFile=../my-release-key.keystore
+# OR (if keystore is in android/app/):
+# storeFile=app/my-release-key.keystore
+# For simplicity with the Gradle script, if it's just a filename like my-release-key.keystore,
+# ensure it's in the Flutter project root directory (alongside pubspec.yaml).
+storeFile=my-release-key.keystore

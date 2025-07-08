@@ -78,30 +78,30 @@ class _VisualSelectionWidgetState extends State<VisualSelectionWidget> {
 
       final File imageFile = File(imageXFile.path);
 
-      // Compress image
       final XFile? compressedXFile = await FlutterImageCompress.compressAndGetFile(
         imageFile.absolute.path,
-        '$imagesDirPath/temp_${uniqueFileName}', // temp path for compressed file
-        quality: 80, // Adjust quality as needed
-        minWidth: 1024, // Adjust dimensions as needed
+        '$imagesDirPath/temp_${uniqueFileName}',
+        quality: 80,
+        minWidth: 1024,
         minHeight: 1024,
       );
 
       if (compressedXFile == null) {
+         if (!context.mounted) return null;
          ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image compression failed.')),
+           SnackBar(content: const Text('Image compression failed. Please try a different image.'), backgroundColor: Theme.of(context).colorScheme.error),
         );
         return null;
       }
 
-      // Move compressed file to final path
       await File(compressedXFile.path).rename(localFilePath);
 
       return localFilePath;
     } catch (e) {
       debugPrint('Error saving image: $e');
+      if (!context.mounted) return null;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving image: $e')),
+        SnackBar(content: Text('Error saving image: $e'), backgroundColor: Theme.of(context).colorScheme.error),
       );
       return null;
     }
@@ -111,7 +111,10 @@ class _VisualSelectionWidgetState extends State<VisualSelectionWidget> {
     try {
       final XFile? pickedXFile = await _picker.pickImage(source: source);
       if (pickedXFile != null) {
+        // Store context before async gap
+        final currentContext = context;
         final String? savedPath = await _saveImageLocally(pickedXFile);
+
         if (savedPath != null) {
           setState(() {
             _selectedType = VisualType.image;

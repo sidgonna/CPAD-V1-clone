@@ -4,4 +4,8 @@
 .pub-cache/
 flutter_*.png
 .idea/
+
+# Android specific
 android/.gradle
+android/key.properties
+# android/local.properties # Usually handled by Flutter tool, but good to ensure

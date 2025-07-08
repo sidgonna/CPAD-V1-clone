@@ -11,14 +11,39 @@ class IdeasController with ChangeNotifier {
   IdeasController({DatabaseService? databaseService})
     : _databaseService = databaseService ?? DatabaseService();
 
-  List<Idea> _ideas = [];
+  List<Idea> _allIdeas = []; // Stores all ideas fetched from DB
+  bool _filterFavorites = false;
 
-  List<Idea> get ideas => _ideas;
+  List<Idea> get ideas { // This getter will now apply the filter
+    if (_filterFavorites) {
+      return _allIdeas.where((idea) => idea.isFavorite).toList();
+    }
+    return _allIdeas;
+  }
+
+  bool get isFilterActive => _filterFavorites;
 
   Future<void> loadIdeas() async {
-    _ideas = _databaseService.getAllIdeas();
+    try {
+      _allIdeas = _databaseService.getAllIdeas();
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error in loadIdeas controller: $e");
+      // Propagate error or set an error state for UI to consume
+      // For now, just printing, UI might not know loading failed unless it handles this.
+      // Consider adding an error property to the controller.
+      throw Exception("Failed to load ideas: $e");
+    }
+  }
+
+  void toggleFilterFavorites() {
+    _filterFavorites = !_filterFavorites;
     notifyListeners();
   }
+
+  // Ensure add, update, delete operations work on _allIdeas and then notify,
+  // so the filtered list is correctly derived.
+  // `loadIdeas()` is already called after these operations, which re-populates _allIdeas.
 
   Future<void> addIdea(Idea idea, {RandomStyle? randomStyle}) async {
     try {
@@ -64,7 +89,12 @@ class IdeasController with ChangeNotifier {
   }
 
   Future<void> deleteIdea(String id) async {
-    await _databaseService.deleteIdea(id);
-    await loadIdeas();
+    try {
+      await _databaseService.deleteIdea(id);
+      await loadIdeas(); // Reload ideas to reflect the deletion
+    } catch (e) {
+      debugPrint("Error in deleteIdea controller: $e");
+      throw Exception("Failed to delete idea: $e");
+    }
   }
 }
