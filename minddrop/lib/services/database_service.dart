@@ -1,4 +1,5 @@
 import 'dart:io'; // For File operations
+import 'dart:ui'; // For Color
 import 'package:flutter/foundation.dart'; // for debugPrint
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart'; // For getApplicationDocumentsDirectory
@@ -161,5 +162,70 @@ class DatabaseService {
       debugPrint('Error during orphaned image cleanup process: $e');
       return cleanedFilesCount; // Return count even if process interrupted by other error
     }
+  }
+
+  // --- Data Export Operations ---
+
+  Future<Map<String, dynamic>> getAllDataForExport() async {
+    final List<Idea> ideas = getAllIdeas(); // This already resolves randomStyle objects
+    final List<Map<String, dynamic>> ideaMaps = [];
+
+    for (final idea in ideas) {
+      Map<String, dynamic> ideaMap = {
+        'id': idea.id,
+        'title': idea.title,
+        'content': idea.content,
+        'createdAt': idea.createdAt.toIso8601String(),
+        'updatedAt': idea.updatedAt.toIso8601String(),
+        'isFavorite': idea.isFavorite,
+        'imagePath': idea.imagePath, // Note: This is a local path, may not be useful if JSON is moved elsewhere
+        'randomStyleId': idea.randomStyleId,
+      };
+      if (idea.randomStyle != null) {
+        ideaMap['randomStyleDetails'] = {
+          'id': idea.randomStyle!.id,
+          'gradientColors': idea.randomStyle!.gradientColors,
+          'beginAlignment': idea.randomStyle!.beginAlignment,
+          'endAlignment': idea.randomStyle!.endAlignment,
+          'iconDataCodePoint': idea.randomStyle!.iconDataCodePoint,
+          'iconDataFontFamily': idea.randomStyle!.iconDataFontFamily,
+          'iconDataFontPackage': idea.randomStyle!.iconDataFontPackage,
+          'iconColor': idea.randomStyle!.iconColor,
+        };
+      }
+      ideaMaps.add(ideaMap);
+    }
+    // We don't need to export RandomStyles separately if they are embedded,
+    // unless we want a separate list of all unique styles.
+    // For now, embedding them in ideas seems sufficient for export/import.
+    return {'ideas': ideaMaps};
+  }
+
+  Future<String> getAllDataAsPlainText() async {
+    final List<Idea> ideas = getAllIdeas();
+    final StringBuffer buffer = StringBuffer();
+    buffer.writeln("MindDrop Ideas Export - ${DateTime.now().toIso8601String()}\n");
+
+    for (int i = 0; i < ideas.length; i++) {
+      final idea = ideas[i];
+      buffer.writeln("--- IDEA ${i + 1} ---");
+      buffer.writeln("Title: ${idea.title}");
+      buffer.writeln("Created: ${idea.createdAt.toLocal()}");
+      buffer.writeln("Updated: ${idea.updatedAt.toLocal()}");
+      buffer.writeln("Favorite: ${idea.isFavorite ? 'Yes' : 'No'}");
+      if (idea.imagePath != null) {
+        buffer.writeln("Image: Local path - ${idea.imagePath}");
+      } else if (idea.randomStyleId != null) {
+        buffer.writeln("Visual: Random Style (ID: ${idea.randomStyleId})");
+        if (idea.randomStyle != null) {
+          final style = idea.randomStyle!;
+          buffer.writeln("  Style Colors: ${style.gradientColors.map((c) => Color(c).toString()).join(', ')}");
+          buffer.writeln("  Style Icon Code: ${style.iconDataCodePoint}");
+        }
+      }
+      buffer.writeln("\nContent:\n${idea.content}");
+      buffer.writeln("\n--------------------\n");
+    }
+    return buffer.toString();
   }
 }
