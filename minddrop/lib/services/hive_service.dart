@@ -19,5 +19,6 @@ class HiveService {
 
     // Open boxes
     await Hive.openBox<Idea>('ideas');
+    await Hive.openBox<RandomStyle>('randomStyles');
   }
 }
