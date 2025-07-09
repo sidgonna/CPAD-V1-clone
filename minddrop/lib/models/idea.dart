@@ -36,7 +36,8 @@ class Idea extends HiveObject {
     this.imagePath,
     this.randomStyle,
     this.isFavorite = false,
-  }) : id = const Uuid().v4(),
+    String? id, // Allow passing ID for testing or specific cases
+  }) : this.id = id ?? const Uuid().v4(),
        createdAt = DateTime.now(),
        updatedAt = DateTime.now();
 }

@@ -8,7 +8,13 @@ import 'package:provider/provider.dart'; // To potentially access controllers fo
 import 'package:minddrop/controllers/ideas_controller.dart'; // For favorite action
 import 'package:transparent_image/transparent_image.dart'; // For kTransparentImage
 
+/// A widget that displays a summary of an [Idea] in a card format.
+///
+/// Includes the idea's title, a preview of its content, its visual element
+/// (image or random style), a favorite indicator/toggle, and navigates to
+/// the [IdeaDetailScreen] on tap.
 class IdeaCard extends StatelessWidget {
+  /// The [Idea] to display.
   final Idea idea;
 
   const IdeaCard({super.key, required this.idea});

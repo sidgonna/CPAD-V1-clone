@@ -10,6 +10,7 @@ import 'package:minddrop/screens/settings_screen.dart';
 import 'package:minddrop/services/hive_service.dart';
 import 'package:minddrop/utils/app_routes.dart';
 import 'package:minddrop/utils/app_themes.dart';
+import 'package:minddrop/utils/custom_page_route.dart'; // Import custom routes
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -39,28 +40,38 @@ class MyApp extends StatelessWidget {
             themeMode: themeController.themeMode,
             initialRoute: AppRoutes.home,
             onGenerateRoute: (settings) {
+              WidgetBuilder builder;
               switch (settings.name) {
                 case AppRoutes.home:
-                  return MaterialPageRoute(builder: (_) => const HomeScreen());
+                  builder = (_) => const HomeScreen();
+                  break;
                 case AppRoutes.addIdea:
-                  return MaterialPageRoute(builder: (_) => const AddIdeaScreen());
+                  builder = (_) => const AddIdeaScreen();
+                  break;
                 case AppRoutes.ideaDetail:
-                  // IdeaDetailScreen expects an ideaId as argument
                   if (settings.arguments is String) {
-                    return MaterialPageRoute(builder: (_) => const IdeaDetailScreen()); // Arguments are handled internally by ModalRoute
+                    // Arguments are handled internally by ModalRoute in IdeaDetailScreen
+                    builder = (_) => const IdeaDetailScreen();
+                  } else {
+                    return _errorRoute(settings.name);
                   }
-                  return _errorRoute(); // Invalid or missing arguments
+                  break;
                 case AppRoutes.editIdea:
                   if (settings.arguments is String) {
                     final ideaId = settings.arguments as String;
-                    return MaterialPageRoute(builder: (_) => EditIdeaScreen(ideaId: ideaId));
+                    builder = (_) => EditIdeaScreen(ideaId: ideaId);
+                  } else {
+                    return _errorRoute(settings.name);
                   }
-                  return _errorRoute(); // Invalid or missing arguments
+                  break;
                 case AppRoutes.settings:
-                  return MaterialPageRoute(builder: (_) => const SettingsScreen());
+                  builder = (_) => const SettingsScreen();
+                  break;
                 default:
-                  return _errorRoute();
+                  return _errorRoute(settings.name);
               }
+              // Use FadePageRoute for all standard routes
+              return FadePageRoute(builder: builder, routeSettings: settings);
             },
             // routes: { // Replaced by onGenerateRoute for argument handling
             //   AppRoutes.home: (context) => const HomeScreen(),
@@ -74,11 +85,11 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  static Route<dynamic> _errorRoute() {
+  static Route<dynamic> _errorRoute(String? routeName) {
     return MaterialPageRoute(builder: (_) {
       return Scaffold(
         appBar: AppBar(title: const Text('Error')),
-        body: const Center(child: Text('Page not found or invalid arguments.')),
+        body: Center(child: Text('Page "$routeName" not found or invalid arguments.')),
       );
     });
   }
