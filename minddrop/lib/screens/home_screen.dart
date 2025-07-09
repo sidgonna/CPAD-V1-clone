@@ -7,6 +7,7 @@ import 'package:minddrop/widgets/idea_card.dart';
 import 'package:provider/provider.dart';
 import 'package:minddrop/controllers/search_controller.dart' as md_search; // Alias to avoid conflict
 import 'package:minddrop/models/idea.dart'; // For type hinting
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart'; // For list animations
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -145,12 +146,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: () => _fetchIdeas(isRefresh: true),
-                      child: ListView.builder(
-                        itemCount: ideasToDisplay.length,
-                        itemBuilder: (context, index) {
-                          final idea = ideasToDisplay[index];
-                          return IdeaCard(idea: idea);
-                        },
+                      child: AnimationLimiter( // Wrap ListView with AnimationLimiter
+                        child: ListView.builder(
+                          itemCount: ideasToDisplay.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final idea = ideasToDisplay[index];
+                            return AnimationConfiguration.staggeredList( // Wrap item with AnimationConfiguration
+                              position: index,
+                              duration: const Duration(milliseconds: 375), // Animation duration
+                              child: SlideAnimation( // Example: Slide animation
+                                verticalOffset: 50.0,
+                                child: FadeInAnimation( // Example: Fade-in animation
+                                  child: IdeaCard(idea: idea),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),

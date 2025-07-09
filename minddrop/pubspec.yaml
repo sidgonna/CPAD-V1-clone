@@ -40,6 +40,7 @@ dependencies:
   transparent_image: ^2.0.1 # For fade-in image placeholder
   fuzzywuzzy: ^1.0.6 # For fuzzy search
   package_info_plus: ^8.0.0 # To get app version for About section
+  flutter_staggered_animations: ^1.1.1 # For list animations
   share_plus: ^11.0.0
   file_saver: ^0.3.0
   path_provider: ^2.0.11

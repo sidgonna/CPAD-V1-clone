@@ -4,8 +4,9 @@ import 'package:minddrop/models/random_style.dart';
 import 'package:minddrop/services/database_service.dart';
 // import 'dart:math';
 
+/// Manages the state of ideas, including fetching, creating, updating,
+/// deleting, and filtering.
 class IdeasController with ChangeNotifier {
-  // Allow DatabaseService to be injected for testability, or use a singleton/service locator
   final DatabaseService _databaseService;
 
   IdeasController({DatabaseService? databaseService})
@@ -21,8 +22,13 @@ class IdeasController with ChangeNotifier {
     return _allIdeas;
   }
 
+  /// Returns true if the favorites filter is currently active.
   bool get isFilterActive => _filterFavorites;
 
+  /// Loads all ideas from the database into the controller.
+  ///
+  /// Notifies listeners after ideas are loaded.
+  /// Throws an exception if loading fails.
   Future<void> loadIdeas() async {
     try {
       _allIdeas = _databaseService.getAllIdeas();
@@ -45,6 +51,12 @@ class IdeasController with ChangeNotifier {
   // so the filtered list is correctly derived.
   // `loadIdeas()` is already called after these operations, which re-populates _allIdeas.
 
+  /// Adds a new [Idea] to the database.
+  ///
+  /// If [randomStyle] is provided and associated with the [idea] via `idea.randomStyleId`,
+  /// it will also be saved to the database.
+  /// Reloads all ideas and notifies listeners upon successful addition.
+  /// Throws an exception if adding fails.
   Future<void> addIdea(Idea idea, {RandomStyle? randomStyle}) async {
     try {
       if (randomStyle != null) {
