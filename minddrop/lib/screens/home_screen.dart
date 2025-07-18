@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // The default CTA in EmptyState might still be relevant (to add any idea).
                   // Or we could pass a custom CTA like "Clear filter".
                 } else if (searchController.isSearchActive && searchController.query.isEmpty) {
-                   // Actively searching but query is empty, show "type to search" or similar
+                  // Actively searching but query is empty, show "type to search" or similar
                   return Center(
                     child: Text(
                       'Type to search ideas...',
@@ -112,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Stack(children: [ListView(), EmptyState(message: emptyMessage, icon: emptyIcon)]),
                   );
                 } else {
-                   return Center( // For "no search results"
+                  return Center( // For "no search results"
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(

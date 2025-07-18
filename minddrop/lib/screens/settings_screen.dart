@@ -113,10 +113,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Using file_saver
       String? path = await FileSaver.instance.saveFile(
-          name: fileName,
-          bytes: fileData,
-          ext: 'json',
-          mimeType: MimeType.json
+        name: fileName,
+        bytes: fileData,
+        mimeType: MimeType.json,
       );
 
       if (path != null) {
@@ -146,10 +145,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final Uint8List fileData = Uint8List.fromList(utf8.encode(textData));
 
       String? path = await FileSaver.instance.saveFile(
-          name: fileName,
-          bytes: fileData,
-          ext: 'txt',
-          mimeType: MimeType.text
+        name: fileName,
+        bytes: fileData,
+        mimeType: MimeType.text,
       );
 
       if (path != null) {
@@ -197,7 +195,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
               onChanged: (ThemeMode? newMode) {
                 if (newMode != null) {
-                  themeController.setThemeMode(newMode);
+                  themeController.updateThemeMode(newMode);
                 }
               },
             ),

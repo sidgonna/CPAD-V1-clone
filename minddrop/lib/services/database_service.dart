@@ -25,9 +25,6 @@ class DatabaseService {
     await _ideaBox.put(idea.id, idea);
   }
 
-  Idea? getIdea(String id) {
-    return _ideaBox.get(id);
-  }
 
   List<Idea> getAllIdeas() {
     var ideas = _ideaBox.values.toList();
@@ -41,7 +38,6 @@ class DatabaseService {
     return ideas;
   }
 
-  // Also update getIdea to do the same
   Idea? getIdea(String id) {
     final idea = _ideaBox.get(id);
     if (idea != null && idea.randomStyleId != null) {
@@ -76,14 +72,14 @@ class DatabaseService {
 
       // 2. Delete associated RandomStyle if it's not used by other ideas
       if (ideaToDelete.randomStyleId != null) {
-        final styleId = ideaToDelete.randomStyleId!;
+        final styleId = ideaToDelete.randomStyleId;
         // Check if any other idea uses this style
         final otherIdeasWithStyle = _ideaBox.values.where(
           (idea) => idea.id != id && idea.randomStyleId == styleId
         ).toList();
 
         if (otherIdeasWithStyle.isEmpty) {
-          await deleteRandomStyle(styleId); // Call the existing deleteRandomStyle
+          await deleteRandomStyle(styleId!); // Call the existing deleteRandomStyle
           debugPrint('Deleted random style: $styleId as it was no longer used.');
         } else {
           debugPrint('Random style $styleId is still used by other ideas.');
@@ -181,17 +177,20 @@ class DatabaseService {
         'imagePath': idea.imagePath, // Note: This is a local path, may not be useful if JSON is moved elsewhere
         'randomStyleId': idea.randomStyleId,
       };
-      if (idea.randomStyle != null) {
-        ideaMap['randomStyleDetails'] = {
-          'id': idea.randomStyle!.id,
-          'gradientColors': idea.randomStyle!.gradientColors,
-          'beginAlignment': idea.randomStyle!.beginAlignment,
-          'endAlignment': idea.randomStyle!.endAlignment,
-          'iconDataCodePoint': idea.randomStyle!.iconDataCodePoint,
-          'iconDataFontFamily': idea.randomStyle!.iconDataFontFamily,
-          'iconDataFontPackage': idea.randomStyle!.iconDataFontPackage,
-          'iconColor': idea.randomStyle!.iconColor,
-        };
+      if (idea.randomStyleId != null) {
+        final randomStyle = getRandomStyle(idea.randomStyleId!);
+        if (randomStyle != null) {
+          ideaMap['randomStyleDetails'] = {
+            'id': randomStyle.id,
+            'gradientColors': randomStyle.gradientColors,
+            'beginAlignment': randomStyle.beginAlignment,
+            'endAlignment': randomStyle.endAlignment,
+            'iconDataCodePoint': randomStyle.iconDataCodePoint,
+            'iconDataFontFamily': randomStyle.iconDataFontFamily,
+            'iconDataFontPackage': randomStyle.iconDataFontPackage,
+            'iconColor': randomStyle.iconColor,
+          };
+        }
       }
       ideaMaps.add(ideaMap);
     }
@@ -217,10 +216,10 @@ class DatabaseService {
         buffer.writeln("Image: Local path - ${idea.imagePath}");
       } else if (idea.randomStyleId != null) {
         buffer.writeln("Visual: Random Style (ID: ${idea.randomStyleId})");
-        if (idea.randomStyle != null) {
-          final style = idea.randomStyle!;
-          buffer.writeln("  Style Colors: ${style.gradientColors.map((c) => Color(c).toString()).join(', ')}");
-          buffer.writeln("  Style Icon Code: ${style.iconDataCodePoint}");
+        final randomStyle = getRandomStyle(idea.randomStyleId!);
+        if (randomStyle != null) {
+          buffer.writeln("  Style Colors: ${randomStyle.gradientColors.map((c) => Color(c).toString()).join(', ')}");
+          buffer.writeln("  Style Icon Code: ${randomStyle.iconDataCodePoint}");
         }
       }
       buffer.writeln("\nContent:\n${idea.content}");

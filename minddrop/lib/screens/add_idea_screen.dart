@@ -46,11 +46,8 @@ class _AddIdeaScreenState extends State<AddIdeaScreen> {
 
     final ideasController = Provider.of<IdeasController>(context, listen: false);
     final newIdea = Idea(
-      id: const Uuid().v4(),
       title: _titleController.text,
       content: _contentController.text,
-      createdAt: DateTime.now(),
-      isFavorite: false,
       imagePath: _selectedVisualType == VisualType.image ? _visualValue : null,
       randomStyleId: _selectedVisualType == VisualType.randomStyle ? _visualValue : null,
     );

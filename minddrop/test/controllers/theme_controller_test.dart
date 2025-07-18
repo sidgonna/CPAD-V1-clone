@@ -47,7 +47,6 @@ void main() {
       themeController = ThemeController();
       // Wait for async operations in constructor to complete (if any significant ones existed)
       // For ThemeController, it's mainly _loadThemePreference
-      await themeController.initializationComplete;
     });
 
     test('initial themeMode is system', () {
@@ -60,7 +59,7 @@ void main() {
         listenerCalled = true;
       });
 
-      themeController.setThemeMode(ThemeMode.dark);
+      themeController.updateThemeMode(ThemeMode.dark);
       expect(themeController.themeMode, ThemeMode.dark);
       expect(listenerCalled, isTrue);
 
@@ -69,18 +68,18 @@ void main() {
       expect(prefs.getString('themeMode'), 'ThemeMode.dark');
     });
 
-    test('setThemeMode to light persists correctly', () async {
-      themeController.setThemeMode(ThemeMode.light);
+    test('updateThemeMode to light persists correctly', () async {
+      themeController.updateThemeMode(ThemeMode.light);
       expect(themeController.themeMode, ThemeMode.light);
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getString('themeMode'), 'ThemeMode.light');
     });
 
-    test('setThemeMode to system persists correctly', () async {
+    test('updateThemeMode to system persists correctly', () async {
       // Set it to something else first
-      themeController.setThemeMode(ThemeMode.dark);
+      themeController.updateThemeMode(ThemeMode.dark);
       // Then set to system
-      themeController.setThemeMode(ThemeMode.system);
+      themeController.updateThemeMode(ThemeMode.system);
       expect(themeController.themeMode, ThemeMode.system);
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getString('themeMode'), 'ThemeMode.system');
@@ -90,19 +89,19 @@ void main() {
       // Save a preference directly
       SharedPreferences.setMockInitialValues({'themeMode': 'ThemeMode.light'});
       final newController = ThemeController();
-      await newController.initializationComplete; // Wait for async constructor part
+      await Future.delayed(Duration.zero); // Wait for async constructor part
 
       expect(newController.themeMode, ThemeMode.light);
 
       SharedPreferences.setMockInitialValues({'themeMode': 'ThemeMode.dark'});
       final newControllerDark = ThemeController();
-      await newControllerDark.initializationComplete;
+      await Future.delayed(Duration.zero);
       expect(newControllerDark.themeMode, ThemeMode.dark);
 
       // Test invalid value fallback to system
       SharedPreferences.setMockInitialValues({'themeMode': 'invalidValue'});
       final newControllerInvalid = ThemeController();
-      await newControllerInvalid.initializationComplete;
+      await Future.delayed(Duration.zero);
       expect(newControllerInvalid.themeMode, ThemeMode.system);
     });
   });
