@@ -2,7 +2,6 @@ import 'dart:async'; // For Timer (debouncing)
 import 'package:flutter/material.dart';
 import 'package:minddrop/models/idea.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart' as fuzzy;
-import 'package:fuzzywuzzy/algorithms/token_set_ratio.dart'; // Example algorithm
 
 class SearchController with ChangeNotifier {
   String _query = '';
@@ -32,21 +31,9 @@ class SearchController with ChangeNotifier {
           for (var idea in allIdeas) {
             // Calculate scores for title and content separately
             // Using tokenSetRatio for more flexibility with word order and partial matches
-            int titleScore = fuzzy.extractOne(
-              query: _query,
-              choices: [idea.title],
-              cutoff: 60, // Minimum score to consider a match (0-100)
-              getter: (s) => s, // Choices are already strings
-              algorithm: TokenSetRatio()
-            )?.score ?? 0;
+            int titleScore = fuzzy.tokenSetRatio(_query, idea.title);
 
-            int contentScore = fuzzy.extractOne(
-              query: _query,
-              choices: [idea.content],
-              cutoff: 60,
-              getter: (s) => s,
-              algorithm: TokenSetRatio()
-            )?.score ?? 0;
+            int contentScore = fuzzy.tokenSetRatio(_query, idea.content);
 
             // Combine scores, prioritizing title matches slightly or using the higher score
             int combinedScore = (titleScore > contentScore ? titleScore : contentScore);

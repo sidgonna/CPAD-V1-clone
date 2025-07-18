@@ -133,7 +133,7 @@ class IdeaDetailScreen extends StatelessWidget {
             ),
             actions: [
               IconButton(
-                icon: Icon(idea.isFavorite ? Icons.star : Icons.star_border),
+                icon: Icon(idea!.isFavorite ? Icons.star : Icons.star_border),
                 color: idea.isFavorite ? Colors.amber : Colors.white,
                 tooltip: 'Favorite',
                 onPressed: () {
@@ -160,7 +160,7 @@ class IdeaDetailScreen extends StatelessWidget {
                     context: context,
                     builder: (ctx) => AlertDialog(
                       title: const Text('Confirm Deletion'),
-                      content: Text('Are you sure you want to delete "${idea.title}"?'),
+                      content: Text('Are you sure you want to delete "${idea!.title}"?'),
                       actions: [
                         TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
                         TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Delete')),
@@ -169,7 +169,7 @@ class IdeaDetailScreen extends StatelessWidget {
                   );
                   if (confirm == true) {
                     await ideasController.deleteIdea(idea.id);
-                    if (mounted && Navigator.canPop(context)) Navigator.pop(context);
+                    if (Navigator.canPop(context)) Navigator.pop(context);
                   }
                 },
               ),
@@ -177,27 +177,25 @@ class IdeaDetailScreen extends StatelessWidget {
                 icon: const Icon(Icons.share),
                 tooltip: 'Share Idea',
                 onPressed: () async {
-                  final subject = idea.title;
+                  final subject = idea!.title;
                   final textContent = "${idea.title}\n\n${idea.content}";
 
                   if (idea.imagePath != null && idea.imagePath!.isNotEmpty) {
                     try {
                       // On some platforms (Desktop, Web), Share.shareXFiles might be better.
                       // Share.shareFiles is generally robust.
-                      await Share.shareXFiles(
-                        [XFile(idea.imagePath!)],
+                      await Share.shareFiles(
+                        [idea.imagePath!],
                         text: textContent,
                         subject: subject, // Subject is mainly for email
                       );
                     } catch (e) {
                       debugPrint("Error sharing image: $e");
-                       if (mounted) {
-                         ScaffoldMessenger.of(context).showSnackBar(
-                           SnackBar(content: Text('Could not share image: $e'), backgroundColor: Colors.red),
-                         );
-                       }
-                       // Fallback to text only share if image share fails
-                       await Share.share(textContent, subject: subject);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Could not share image: $e'), backgroundColor: Colors.red),
+                      );
+                      // Fallback to text only share if image share fails
+                      await Share.share(textContent, subject: subject);
                     }
                   } else {
                     await Share.share(textContent, subject: subject);

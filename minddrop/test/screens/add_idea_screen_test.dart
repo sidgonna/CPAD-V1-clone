@@ -6,7 +6,7 @@ import 'package:minddrop/controllers/ideas_controller.dart';
 import 'package:mockito/mockito.dart';
 import '../test_helpers.dart'; // This now includes MockImagePickerPlatform
 import '../controllers/ideas_controller_test.mocks.dart'; // For MockDatabaseService
-import 'package:image_picker/image_picker.dart'; // For XFile and ImagePicker.platform setter
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'dart:io'; // For File
 
 // MockImagePickerPlatform is now in test_helpers.dart
@@ -22,7 +22,7 @@ void main() {
 
     // Set the global ImagePicker.platform instance for all tests in this file
     mockImagePickerPlatformGlobal = MockImagePickerPlatform();
-    ImagePicker.platform = mockImagePickerPlatformGlobal;
+    ImagePickerPlatform.instance = mockImagePickerPlatformGlobal;
 
     // Default mock behaviors
     when(mockDatabaseService.addIdea(any)).thenAnswer((_) async {});
@@ -37,8 +37,8 @@ void main() {
     ));
 
     expect(find.widgetWithText(AppBar, 'Add New Idea'), findsOneWidget);
-    expect(find.widgetWithText(TextFormField, 'Title'), findsOneWidget); // Finds by labelText
-    expect(find.widgetWithText(TextFormField, 'Content'), findsOneWidget);
+    expect(find.byKey(const Key('title_field')), findsOneWidget);
+    expect(find.byKey(const Key('content_field')), findsOneWidget);
     expect(find.byType(VisualSelectionWidget), findsOneWidget);
     expect(find.widgetWithText(ElevatedButton, 'Save Idea'), findsOneWidget);
   });
@@ -61,7 +61,7 @@ void main() {
       ideasController: ideasController,
     ));
 
-    await tester.enterText(find.byWidgetPredicate((widget) => widget is TextFormField && widget.decoration?.labelText == 'Title'), 'Test Title');
+    await tester.enterText(find.byKey(const Key('title_field')), 'Test Title');
     await tester.tap(find.widgetWithText(ElevatedButton, 'Save Idea'));
     await tester.pumpAndSettle();
 
@@ -74,8 +74,8 @@ void main() {
       ideasController: ideasController,
     ));
 
-    await tester.enterText(find.byWidgetPredicate((widget) => widget is TextFormField && widget.decoration?.labelText == 'Title'), 'Test Title');
-    await tester.enterText(find.byWidgetPredicate((widget) => widget is TextFormField && widget.decoration?.labelText == 'Content'), 'Test Content');
+    await tester.enterText(find.byKey(const Key('title_field')), 'Test Title');
+    await tester.enterText(find.byKey(const Key('content_field')), 'Test Content');
 
     await tester.tap(find.widgetWithText(ElevatedButton, 'Save Idea'));
     await tester.pumpAndSettle();
@@ -106,12 +106,12 @@ void main() {
         // Add other routes if AddIdeaScreen navigates elsewhere on success (e.g. back to home)
       },
       ideasController: ideasController,
-      // navigatorObservers: [mockObserver], // Need to add navigatorObservers to createTestableWidgetWithRoutes
+      navigatorObservers: [mockObserver], // Need to add navigatorObservers to createTestableWidgetWithRoutes
     ));
 
     // Fill form
-    await tester.enterText(find.byWidgetPredicate((widget) => widget is TextFormField && widget.decoration?.labelText == 'Title'), 'Idea with Image');
-    await tester.enterText(find.byWidgetPredicate((widget) => widget is TextFormField && widget.decoration?.labelText == 'Content'), 'Content for image idea.');
+    await tester.enterText(find.byKey(const Key('title_field')), 'Idea with Image');
+    await tester.enterText(find.byKey(const Key('content_field')), 'Content for image idea.');
 
     // Select image
     await tester.tap(find.widgetWithText(ElevatedButton, 'Image')); // In VisualSelectionWidget
@@ -123,7 +123,7 @@ void main() {
 
     verify(mockDatabaseService.addIdea(any)).called(1);
     expect(find.text('Idea with Image added successfully!'), findsOneWidget);
-    // verify(mockObserver.didPop(any, any)).called(1); // If it pops on success
+    verify(mockObserver.didPop(any, any)).called(1); // If it pops on success
 
     await fakeImageFile.parent.delete(recursive: true);
   });

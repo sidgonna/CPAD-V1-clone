@@ -6,6 +6,7 @@ import 'package:minddrop/services/database_service.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import 'package:flutter/material.dart';
 // Generate mocks for DatabaseService by running:
 // flutter pub run build_runner build --delete-conflicting-outputs
 // This will create ideas_controller_test.mocks.dart
@@ -191,7 +192,3 @@ void main() {
   });
 }
 
-// Need to import Icons from material.dart for createDummyRandomStyle
-// For tests, it's fine, but if this helper was in main code, it'd be odd.
-// A better way for tests would be to use integer code points directly.
-class Icons { static const star = IconData(0xe5f9, fontFamily: 'MaterialIcons'); }

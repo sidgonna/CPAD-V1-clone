@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:minddrop/models/random_style.dart';
 import 'package:minddrop/widgets/visual_selection_widget.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:mockito/mockito.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import '../test_helpers.dart'; // For createTestableWidget
 
 // Mock ImagePicker
-class MockImagePicker extends Mock implements ImagePicker {}
+class MockImagePicker extends Mock implements ImagePickerPlatform {}
 
 // Mock ImagePickerPlatform to control picked files
 class MockImagePickerPlatform extends Mock with MockPlatformInterfaceMixin implements ImagePickerPlatform {
@@ -28,12 +28,11 @@ class MockImagePickerPlatform extends Mock with MockPlatformInterfaceMixin imple
 
   @override
   Future<XFile?> pickImage({
-    required ImageSource source,
+    ImageSource source = ImageSource.gallery,
     double? maxWidth,
     double? maxHeight,
     int? imageQuality,
     CameraDevice preferredCameraDevice = CameraDevice.rear,
-    bool requestFullMetadata = true,
   }) async {
     if (_pickError != null) {
       throw _pickError!;
@@ -60,7 +59,7 @@ void main() {
 
   setUp(() {
     mockImagePickerPlatform = MockImagePickerPlatform();
-    ImagePicker.platform = mockImagePickerPlatform;
+    ImagePickerPlatform.instance = mockImagePickerPlatform;
   });
 
   testWidgets('VisualSelectionWidget initial state and displays selection buttons', (WidgetTester tester) async {

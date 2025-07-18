@@ -17,12 +17,15 @@ class IdeaAdapter extends TypeAdapter<Idea> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Idea(
+      id: fields[0] as String?,
       title: fields[1] as String,
       content: fields[2] as String,
+      createdAt: fields[3] as DateTime?,
+      updatedAt: fields[4] as DateTime?,
       imagePath: fields[5] as String?,
-      randomStyle: fields[6] as RandomStyle?,
+      randomStyleId: fields[6] as String?,
       isFavorite: fields[7] as bool,
-    )..updatedAt = fields[4] as DateTime;
+    );
   }
 
   @override
@@ -42,7 +45,7 @@ class IdeaAdapter extends TypeAdapter<Idea> {
       ..writeByte(5)
       ..write(obj.imagePath)
       ..writeByte(6)
-      ..write(obj.randomStyle)
+      ..write(obj.randomStyleId)
       ..writeByte(7)
       ..write(obj.isFavorite);
   }

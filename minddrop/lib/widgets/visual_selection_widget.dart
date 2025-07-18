@@ -40,7 +40,7 @@ class _VisualSelectionWidgetState extends State<VisualSelectionWidget> {
   RandomStyle? _generatedStyle; // To hold the generated style for preview
 
   final ImagePicker _picker = ImagePicker();
-  // Uuid is already used in _saveImageLocally, RandomStyleGenerator also uses its own.
+  final Uuid _uuid = const Uuid();
 
   @override
   void initState() {
@@ -120,7 +120,6 @@ class _VisualSelectionWidgetState extends State<VisualSelectionWidget> {
             _selectedType = VisualType.image;
             _selectedValue = savedPath;
             _pickedImageFile = File(savedPath);
-            _stylePreview = null; // This was a typo, should be _generatedStyle
             _generatedStyle = null;
           });
           widget.onSelectionChanged(_selectedType, _selectedValue, null); // Pass null for RandomStyle

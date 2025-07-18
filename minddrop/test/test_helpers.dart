@@ -26,12 +26,6 @@ class InMemorySharedPreferencesStore implements SharedPreferencesStorePlatform {
   Future<bool> remove(String key) { _data.remove(key); return Future.value(true); }
   @override
   Future<bool> setValue(String valueType, String key, Object value) { _data[key] = value; return Future.value(true); }
-  @override
-  // ignore: unused_element
-  Future<bool> clearWithParameters(ClearParameters parameters) { return clear(); }
-  @override
-  // ignore: unused_element
-  Map<String, Object> getAllWithParameters(GetAllParameters parameters) { return Map.from(_data); }
 }
 
 // Mock ImagePickerPlatform to control picked files in tests
@@ -57,50 +51,26 @@ class MockImagePickerPlatform extends Mock with MockPlatformInterfaceMixin imple
   }
 
   @override
-  Future<XFile?> getImageFromSource({
+  Future<XFile?> pickImage({
     required ImageSource source,
-    ImagePickerOptions options = const ImagePickerOptions(),
+    double? maxWidth,
+    double? maxHeight,
+    int? imageQuality,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
   }) async {
     if (_pickError != null) throw _pickError!;
     return _pickedFile;
   }
 
-  // Implement other methods based on ImagePickerPlatform interface if used by the app
-   @override
-  Future<XFile?> getImage({
-    required ImageSource source,
-    double? maxWidth,
-    double? maxHeight,
-    int? imageQuality,
-    CameraDevice preferredCameraDevice = CameraDevice.rear,
-  }) async {
-     if (_pickError != null) throw _pickError!;
-     return _pickedFile;
-   }
-
   @override
-  Future<List<XFile>> getMultiImage({
+  Future<List<XFile>?> pickMultiImage({
     double? maxWidth,
     double? maxHeight,
     int? imageQuality,
   }) async {
     if (_pickError != null) throw _pickError!;
-    return _pickedMultiImageFiles ?? [];
+    return _pickedMultiImageFiles;
   }
-
-  @override
-  Future<PickedFile?> pickImage({ //This is for older image_picker versions, but good to have a stub
-    required ImageSource source,
-    double? maxWidth,
-    double? maxHeight,
-    int? imageQuality,
-    CameraDevice preferredCameraDevice = CameraDevice.rear,
-    bool requestFullMetadata = true,
-  }) async {
-    if (_pickError != null) throw _pickError!;
-    return _pickedFile != null ? PickedFile(_pickedFile!.path) : null;
-  }
-  // Add stubs for other methods like getVideo, pickVideo etc. if they were ever to be called.
 }
 
 
